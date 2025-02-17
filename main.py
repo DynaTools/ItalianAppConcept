@@ -1,18 +1,18 @@
 import streamlit as st
 from datetime import datetime
-import google as genai
+from google import genai
 import json
 import os
 
 @st.cache_data(ttl=3600)
-def analyze_with_gemini(text: str) -> str:
+def analyze_with_gemini(text: str, gemini_key: str) -> str:
     """
     Usa a biblioteca google.genai com o modelo "gemini-2.0-flash" para analisar
     a frase em italiano, com cache para melhor performance.
     """
-
-    gemini_key = st.secrets["google"]["gemini_key"]
+    # Aqui, em vez de usar st.secrets, usamos a chave que o usuário digitou.
     client = genai.Client(api_key=gemini_key)
+
     prompt = (
         f"Analizza la seguente frase in italiano: \"{text}\"\n\n"
         "Fornisci un'analisi dettagliata della frase, includendo:\n"
@@ -57,6 +57,10 @@ def main():
         page_icon="🇮🇹",
         layout="wide"
     )
+
+    # Adicionamos este campo para você digitar a chave do Gemini.
+    st.sidebar.title("Configurações")
+    gemini_key = st.sidebar.text_input("Insira sua chave do Gemini:", value="", type="password")
 
     st.markdown("""
         <style>
@@ -184,9 +188,11 @@ def main():
                 st.error("⚠️ Per favore, inserisci una frase.")
             elif len(phrase) > 500:
                 st.error("⚠️ La frase è troppo lunga. Massimo 500 caratteri.")
+            elif not gemini_key.strip():
+                st.error("⚠️ Per favore, insira a chave do Gemini na barra lateral.")
             else:
                 with st.spinner("Analizzando..."):
-                    analysis = analyze_with_gemini(phrase)
+                    analysis = analyze_with_gemini(phrase, gemini_key)
                     if analysis:
                         st.session_state.analysis_result = analysis
                         st.session_state.phrase = phrase
