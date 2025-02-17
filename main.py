@@ -10,7 +10,8 @@ def analyze_with_gemini(text: str) -> str:
     Usa a biblioteca google.genai com o modelo "gemini-2.0-flash" para analisar
     a frase em italiano, com cache para melhor performance.
     """
-    gemini_key = "AIzaSyB0av1dLTo1m8u_wIJLJDVxYCGNy-TR-7E"
+
+    gemini_key = st.secrets["google"]["gemini_key"]
     client = genai.Client(api_key=gemini_key)
     prompt = (
         f"Analizza la seguente frase in italiano: \"{text}\"\n\n"
